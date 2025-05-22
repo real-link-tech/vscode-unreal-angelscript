@@ -1096,8 +1096,9 @@ comment_documentation
         return result;
     }
 
+
 function_signature
-    = ret:function_return name:identifier _ "("
+    = pre_quals:pre_qualifiers ret:function_return name:identifier _ "("
         params:(
             // An incomplete parameter list is allowed if this is likely a function declaration
             &{ return options.precedesBlock && !options.endsWithSemicolon; }
@@ -1111,7 +1112,7 @@ function_signature
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = quals;
+        node.qualifiers = pre_quals + quals;
         return node;
     }
     / void_type __ name:identifier params:(_ "(" @params:parameter_list_incomplete _ ")")? // INCOMPLETE: Rest of the function signature isn't there yet
@@ -1125,13 +1126,13 @@ function_signature
     }
 
 function_signature_incomplete
-    = ret:function_return name:identifier _ "(" params:parameter_list_incomplete _ ")" quals:func_qualifiers
+    = pre_quals:pre_qualifiers ret:function_return name:identifier _ "(" params:parameter_list_incomplete _ ")" quals:func_qualifiers
     {
         let node = Compound(range(), n.FunctionDecl, null);
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = quals;
+        node.qualifiers = pre_quals + quals;
         return node;
     }
     / void_type __ name:identifier params:(_ "(" @params:parameter_list_incomplete _ ")")? // INCOMPLETE: Rest of the function signature isn't there yet
@@ -1152,6 +1153,8 @@ void_type
     { return null; }
 func_qualifiers
     = (_ @("const" / "final" / "override" / "property" / (!"from" @identifier_name)))*
+pre_qualifiers
+    = (@("co_async") _)*
 
 parameter_list
     = params:(

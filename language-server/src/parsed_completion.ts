@@ -4167,6 +4167,10 @@ function GetDeclarationSnippet(method : typedb.DBMethod, indent : string, includ
         preambleLength += 4;
 
     let complStr = "";
+
+    if (method.isAsync)
+        complStr += "co_async ";
+
     if (includeReturnType)
         complStr += method.returnType+" ";
     complStr += method.name+"(";

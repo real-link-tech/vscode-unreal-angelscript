@@ -742,6 +742,9 @@ function ResolveMethodOverrideSnippet(asmodule : scriptfiles.ASModule, action : 
     if (method.isBlueprintEvent)
         snippet += indent+"UFUNCTION(BlueprintOverride)\n";
 
+    if (method.isAsync)
+        snippet += "co_async ";
+
     snippet += GenerateMethodHeaderString("", indent, data.name, method.returnType, method.args);
     if (method.isConst)
         snippet += " const"

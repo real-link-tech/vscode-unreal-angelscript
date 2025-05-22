@@ -235,6 +235,7 @@ export class DBMethod implements DBSymbol
     isCallable : boolean = true;
     isBlueprintOverride : boolean = false;
     isConst : boolean = false;
+    isAsync : boolean = false;
     isFinal : boolean = false;
     isProperty : boolean = false;
     isOverride : boolean = false;
@@ -286,6 +287,7 @@ export class DBMethod implements DBSymbol
         inst.isCallable = this.isCallable;
         inst.isBlueprintOverride = this.isBlueprintOverride;
         inst.isConst = this.isConst;
+        inst.isAsync = this.isAsync;
         inst.isProperty = this.isProperty;
         inst.isDefaultsOnly = this.isDefaultsOnly;
         inst.determinesOutputTypeArgumentIndex = this.determinesOutputTypeArgumentIndex;
@@ -336,6 +338,11 @@ export class DBMethod implements DBSymbol
             this.isConst = input['const'];
         else
             this.isConst = false;
+
+        if ('async' in input)
+            this.isAsync = input['async'];
+        else
+            this.isAsync = false;
 
         if ('event' in input)
             this.isBlueprintEvent = input['event'];
@@ -409,7 +416,11 @@ export class DBMethod implements DBSymbol
 
     format(prefix : string = null, skipFirstArg = false, skipReturn = false, replaceName : string = null, determineType : DBType = null) : string
     {
-        let decl : string = "";
+        let decl: string = "";
+
+        if (this.isAsync)
+            decl += "co_async ";
+
         if (!skipReturn)
         {
             if (determineType)
