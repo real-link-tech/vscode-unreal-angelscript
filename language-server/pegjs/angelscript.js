@@ -1043,7 +1043,7 @@ function peg$parse(input, options) {
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = pre_quals + quals;
+        node.qualifiers = pre_quals.concat(quals);
         return node;
     };
   var peg$f102 = function(name, params) {
@@ -1059,7 +1059,7 @@ function peg$parse(input, options) {
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = pre_quals + quals;
+        node.qualifiers = pre_quals.concat(quals);
         return node;
     };
   var peg$f104 = function(name, params) {

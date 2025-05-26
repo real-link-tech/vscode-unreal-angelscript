@@ -339,8 +339,8 @@ export class DBMethod implements DBSymbol
         else
             this.isConst = false;
 
-        if ('async' in input)
-            this.isAsync = input['async'];
+        if ('co_async' in input)
+            this.isAsync = input['co_async'];
         else
             this.isAsync = false;
 

@@ -2137,7 +2137,7 @@ function GenerateTypeInformation(scope : ASScope)
                         dbfunc.isProperty = true;
                     else if (qual == "const")
                         dbfunc.isConst = true;
-                    else if (qual == "async")
+                    else if (qual == "co_async")
                         dbfunc.isAsync = true;
                     else if (qual == "final")
                         dbfunc.isFinal = true;

@@ -1112,7 +1112,7 @@ function_signature
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = pre_quals + quals;
+        node.qualifiers = pre_quals.concat(quals);
         return node;
     }
     / void_type __ name:identifier params:(_ "(" @params:parameter_list_incomplete _ ")")? // INCOMPLETE: Rest of the function signature isn't there yet
@@ -1132,7 +1132,7 @@ function_signature_incomplete
         node.name = name;
         node.returntype = ret;
         node.parameters = params;
-        node.qualifiers = pre_quals + quals;
+        node.qualifiers = pre_quals.concat(quals);
         return node;
     }
     / void_type __ name:identifier params:(_ "(" @params:parameter_list_incomplete _ ")")? // INCOMPLETE: Rest of the function signature isn't there yet
