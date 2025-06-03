@@ -280,6 +280,23 @@ function AddGeneratedCodeForDelegate(dbtype : typedb.DBType, asmodule : scriptfi
         }
 
         {
+            let method = AddMethod(dbtype, "Await");
+
+            method.args = new Array<typedb.DBArg>();
+            method.args.push(new typedb.DBArg().init("const UObject", "Owner"));
+
+            if (!dbtype.delegateArgs || dbtype.delegateArgs.length == 0)
+                method.returnType = "void";
+            else if (dbtype.delegateArgs.length == 1)
+                method.returnType = dbtype.delegateArgs[0].typename;
+            else
+                method.returnType = "TTuple<" + dbtype.delegateArgs.map(arg => arg.typename).join(", ") + ">";
+
+            method.documentation = "Await the next broadcast of this event. Will block until the event is broadcasted.";
+            method.isAsync = true;
+        }
+
+        {
             let method = AddMethod(dbtype, "AddUFunction");
             method.returnType = "void";
             method.documentation = "Add a new binding to this event. Make sure the function you're binding is a UFUNCTION().";
