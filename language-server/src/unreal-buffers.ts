@@ -53,6 +53,8 @@ export enum MessageType
 
     SetDataBreakpoints,
     ClearDataBreakpoints,
+
+    GetSourceLocation,
 }
 
 export class Message
@@ -167,6 +169,19 @@ export function buildGoTo(typename : string, symbolname : string) : Buffer
 {
     let head = Buffer.alloc(5);
     head.writeUInt8(MessageType.GoToDefinition, 4);
+
+    let msg = Buffer.concat([
+        head, writeString(typename), writeString(symbolname)
+    ]);
+
+    msg.writeUInt32LE(msg.length - 4, 0);
+    return msg;
+}
+
+export function buildGetSourceLocation(typename: string, symbolname: string): Buffer
+{
+    let head = Buffer.alloc(5);
+    head.writeUInt8(MessageType.GetSourceLocation, 4);
 
     let msg = Buffer.concat([
         head, writeString(typename), writeString(symbolname)

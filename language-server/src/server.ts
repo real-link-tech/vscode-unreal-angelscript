@@ -50,7 +50,8 @@ import * as glob from 'glob';
 
 import {
     Message, MessageType, readMessages, buildGoTo,
-    buildDisconnect, buildOpenAssets, buildCreateBlueprint
+    buildDisconnect, buildOpenAssets, buildCreateBlueprint,
+    buildGetSourceLocation
 } from './unreal-buffers';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -639,7 +640,7 @@ connection.onSignatureHelp((_textDocumentPosition: TextDocumentPositionParams): 
     return help;
 });
 
-connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Definition | null => {
+connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Definition | Thenable<Definition> => {
     let asmodule = GetAndParseModule(_textDocumentPosition.textDocument.uri);
     if (!asmodule)
         return null;
@@ -648,6 +649,36 @@ connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Def
     let definitions = scriptsymbols.GetDefinition(asmodule, _textDocumentPosition.position);
     if (definitions && definitions.length == 1)
         return definitions[0];
+
+    let cppSymbol = scriptsymbols.GetCppSymbol(asmodule, _textDocumentPosition.position);
+    if (cppSymbol) {
+        // the unreal editor with the type and symbol we've resolved that we want.
+        if (unreal) {
+            unreal.write(buildGetSourceLocation(cppSymbol[0], cppSymbol[1]));
+
+            return new Promise<Definition>(
+                (resolve, reject) => {
+                    unreal.prependOnceListener("data",
+                        (data: Buffer) => {
+                            let messages: Array<Message> = readMessages(data);
+                            for (let msg of messages) {
+                                if (msg.type == MessageType.GetSourceLocation) {
+                                    let location = Location.create(msg.readString(), Range.create(msg.readInt(), msg.readInt(), msg.readInt(), msg.readInt()));
+                                    resolve(location);
+                                    return
+                                }
+                            }
+                            reject("Couldn't find definition");
+                        }
+                    );
+                    setTimeout(() => {
+                        resolve(definitions);
+                    }, 5000);
+                }
+            );
+        }
+    }
+
     return definitions;
 });
 

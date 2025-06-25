@@ -58,6 +58,8 @@ export enum MessageType
 
     SetDataBreakpoints,
     ClearDataBreakpoints,
+
+    GetSourceLocation,
 }
 
 export class Message
