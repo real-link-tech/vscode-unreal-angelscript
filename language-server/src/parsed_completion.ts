@@ -3653,8 +3653,15 @@ export function isValidModuleDependency(module : string, dependencyModule : stri
 {
     if (!dependencyModule)
         return true;
-    if (resolveModuleIsolation(module) != resolveModuleIsolation(dependencyModule))
-        return false;
+
+    let dependencyIsolation = resolveModuleIsolation(dependencyModule);
+    if (dependencyIsolation)
+    {
+        let moduleIsolation = resolveModuleIsolation(module);
+        if (dependencyIsolation != moduleIsolation)
+            return false;
+    }
+
     return true;
 }
 
@@ -3732,7 +3739,7 @@ function isFunctionAccessibleFromScope(curtype : typedb.DBType | typedb.DBNamesp
     {
         if (func.declaredModule)
         {
-            if (func.isLocal || (func.namespace.isRootNamespace() && !scriptfiles.GetScriptSettings().exposeGlobalFunctions))
+            if (func.isLocal || (func.namespace.isRootNamespace() && !scriptfiles.GetScriptSettings().exposeGlobalFunctions && !func.isMixin))
             {
                 if (func.declaredModule != inScope.module.modulename)
                     return false;

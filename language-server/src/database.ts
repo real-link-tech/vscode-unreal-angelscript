@@ -424,11 +424,21 @@ export class DBMethod implements DBSymbol
         if (!skipReturn)
         {
             if (determineType)
-                decl += this.applyDeterminesOutputType(this.returnType, determineType).name + " ";
+            {
+                let outputType = this.applyDeterminesOutputType(this.returnType, determineType);
+                if (outputType)
+                    decl += outputType.name + " ";
+                else
+                    decl += this.returnType + " ";
+            }
             else if (this.determinesOutputTypeArgumentIndex != -1)
+            {
                 decl += "auto ";
+            }
             else
+            {
                 decl += this.returnType + " ";
+            }
         }
         if(prefix != null)
             decl += prefix;
@@ -563,8 +573,6 @@ export class DBMethod implements DBSymbol
                 let subType = LookupType(this.namespace, subTypeName);
                 if (!subType)
                     continue;
-                if (subType.isValueType())
-                    continue;
 
                 foundSubType = true;
                 determineType = subType;
@@ -575,10 +583,11 @@ export class DBMethod implements DBSymbol
                 return resultType;
         }
 
-        if (determineType.isValueType())
-            return resultType;
+        let targetIsValueType = determineType.isValueType();
 
         if (determineType.name == "UClass")
+            return resultType;
+        if (determineType.name == "UScriptStruct")
             return resultType;
 
         if (resultType.isTemplateInstantiation)
@@ -591,7 +600,8 @@ export class DBMethod implements DBSymbol
                     newDeclaration += ",";
 
                 let subType = LookupType(this.namespace, resultType.templateSubTypes[i]);
-                if (subType && !subType.isValueType() && determineType.inheritsFrom(subType.name) && !replacedAny)
+                if (subType && subType.isValueType() == targetIsValueType
+                    && (targetIsValueType || determineType.inheritsFrom(subType.name)) && !replacedAny)
                 {
                     newDeclaration += TransferTypeQualifiers(
                         resultType.templateSubTypes[i],
@@ -614,10 +624,10 @@ export class DBMethod implements DBSymbol
             }
         }
 
-        if (resultType.isValueType())
+        if (resultType.isValueType() != targetIsValueType)
             return resultType;
 
-        if (!determineType.inheritsFrom(resultType.name))
+        if (!targetIsValueType && !determineType.inheritsFrom(resultType.name))
             return resultType;
 
         return determineType;
