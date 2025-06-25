@@ -563,8 +563,8 @@ export class DBMethod implements DBSymbol
                 let subType = LookupType(this.namespace, subTypeName);
                 if (!subType)
                     continue;
-                // if (subType.isValueType())
-                //     continue;
+                if (subType.isValueType())
+                    continue;
 
                 foundSubType = true;
                 determineType = subType;
@@ -575,13 +575,10 @@ export class DBMethod implements DBSymbol
                 return resultType;
         }
 
-        // if (determineType.isValueType())
-        //     return resultType;
-
-        if (determineType.name == "UClass")
+        if (determineType.isValueType())
             return resultType;
 
-        if (determineType.name == "UScriptStruct")
+        if (determineType.name == "UClass")
             return resultType;
 
         if (resultType.isTemplateInstantiation)
@@ -594,7 +591,7 @@ export class DBMethod implements DBSymbol
                     newDeclaration += ",";
 
                 let subType = LookupType(this.namespace, resultType.templateSubTypes[i]);
-                if (subType && (subType.isValueType() || determineType.inheritsFrom(subType.name)) && !replacedAny)
+                if (subType && !subType.isValueType() && determineType.inheritsFrom(subType.name) && !replacedAny)
                 {
                     newDeclaration += TransferTypeQualifiers(
                         resultType.templateSubTypes[i],
@@ -617,10 +614,10 @@ export class DBMethod implements DBSymbol
             }
         }
 
-        // if (resultType.isValueType())
-        //     return resultType;
+        if (resultType.isValueType())
+            return resultType;
 
-        if (!determineType.inheritsFrom(resultType.name) && !resultType.isValueType())
+        if (!determineType.inheritsFrom(resultType.name))
             return resultType;
 
         return determineType;
