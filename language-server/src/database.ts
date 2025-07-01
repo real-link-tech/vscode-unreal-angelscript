@@ -344,6 +344,11 @@ export class DBMethod implements DBSymbol
         else
             this.isAsync = false;
 
+        if ('mixin' in input)
+            this.isMixin = input['mixin']
+        else
+            this.isMixin = false;
+
         if ('event' in input)
             this.isBlueprintEvent = input['event'];
         else

@@ -530,7 +530,14 @@ export function SortMethodsBasedOnArgumentTypes(methods: Array<typedb.DBMethod>,
 
     let scoredFunctions = new Array<[typedb.DBMethod, number]>();
 
-    for (let func of methods)
+    let resolvedMethods = new Array<typedb.DBMethod>();
+    scriptfiles.ResolveFunctionOverloadsFromExpression(context.scope, context.subOuterStatement.ast, resolvedMethods);
+
+    let sortingMethods = methods;
+    if(resolvedMethods.length != 0)
+        sortingMethods = resolvedMethods;
+
+    for (let func of sortingMethods)
         scoredFunctions.push([func, ScoreMethodOverload(context, func, argContext)[0]]);
 
     scoredFunctions.sort(
