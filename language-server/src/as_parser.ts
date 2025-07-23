@@ -1977,6 +1977,7 @@ function GenerateTypeInformation(scope : ASScope)
 
             let structdef = scope.previous.ast;
             let dbtype = AddDBType(scope, structdef.name.value);
+            dbtype.supertype = structdef.superstruct ? structdef.superstruct.value : "";
             if (structdef.documentation)
                 dbtype.documentation = typedb.FormatDocumentationComment(structdef.documentation);
             dbtype.moduleOffset = scope.previous.start_offset + structdef.name.start;
@@ -4993,6 +4994,28 @@ function DetectNodeSymbols(scope : ASScope, statement : ASStatement, node : any,
         case node_types.StructDefinition:
         {
             AddIdentifierSymbol(scope, statement, node.name, ASSymbolType.Typename, null, node.name.value);
+
+            // If we specified a super type, add the symbol for that too
+            if (node.superstruct)
+            {
+                let superType = typedb.LookupType(scope.getNamespace(), node.superstruct.value);
+                if (superType)
+                {
+                    let superSymbol = AddIdentifierSymbol(scope, statement, node.superstruct, ASSymbolType.Typename, null, node.superstruct.value);
+                    if (superType.declaredModule && !ScriptSettings.automaticImports && !scope.module.isModuleImported(superType.declaredModule))
+                        superSymbol.isUnimported = true;
+                    scope.module.markDependencyType(superType);
+                }
+                else
+                {
+                    let hasPotentialCompletions = false;
+                    if (scope.module.isEditingNode(statement, node.superstruct))
+                        hasPotentialCompletions = typedb.HasTypeWithPrefix(scope.getNamespace(), node.superstruct.value);
+                    AddUnknownSymbol(scope, statement, node.superstruct, hasPotentialCompletions);
+                    scope.module.markDependencyIdentifier(node.superstruct.value);
+                    return null;
+                }
+            }
         }
         break;
         case node_types.EnumDefinition:

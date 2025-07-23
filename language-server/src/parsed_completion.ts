@@ -2898,6 +2898,7 @@ function ExtractPriorExpressionAndSymbol(context : CompletionContext, node : any
         }
         break;
         case scriptfiles.node_types.ClassDefinition:
+        case scriptfiles.node_types.StructDefinition:
         {
             context.priorExpression = null;
             context.priorType = null;
@@ -2908,10 +2909,22 @@ function ExtractPriorExpressionAndSymbol(context : CompletionContext, node : any
                 context.completingNode = node.superclass;
                 context.completingSymbol = node.superclass.value;
             }
+            else if(node.superstruct)
+            {
+                context.maybeTypename = true;
+                context.isRightExpression = false;
+                context.completingNode = node.superstruct;
+                context.completingSymbol = node.superstruct.value;
+            }
             else
             {
                 context.isNamingSomethingNew = true;
-                context.isNamingNewClass = true;
+
+                if( node.type == scriptfiles.node_types.ClassDefinition )
+                    context.isNamingNewClass = true;
+                else if( node.type == scriptfiles.node_types.StructDefinition )
+                    context.isNamingNewStruct = true;
+
                 context.completingNode = node.name;
                 if (node.name)
                     context.completingSymbol = node.name.value;
@@ -2921,15 +2934,12 @@ function ExtractPriorExpressionAndSymbol(context : CompletionContext, node : any
             return true;
         }
         break;
-        case scriptfiles.node_types.StructDefinition:
         case scriptfiles.node_types.EnumDefinition:
         case scriptfiles.node_types.NamespaceDefinition:
         {
             context.priorExpression = null;
             context.priorType = null;
             context.isNamingSomethingNew = true;
-            if (node.type == scriptfiles.node_types.StructDefinition)
-                context.isNamingNewStruct = true;
             context.completingNode = node.name;
             if (node.name)
                 context.completingSymbol = node.name.value;

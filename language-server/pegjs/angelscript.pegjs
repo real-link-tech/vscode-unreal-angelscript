@@ -1335,11 +1335,19 @@ event_decl
     }
 
 struct_decl
-    = macro:(@ustruct_macro _)? &"s" "struct" _ name:identifier
+    = macro:(@ustruct_macro _)? &"s" "struct" _ name:identifier superstruct:(
+        _ ":" @(_ @(
+            identifier_name (_ ":" ":" _ identifier_name)*
+            {
+                return Identifier(range(), text());
+            }
+        ))?
+    )?
     {
         let node = Compound(range(), n.StructDefinition, null);
         node.name = name;
         node.macro = macro;
+        node.superstruct = superstruct;
         return node;
     }
 
