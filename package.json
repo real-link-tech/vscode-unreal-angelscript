@@ -2,7 +2,7 @@
     "name": "unreal-angelscript",
     "displayName": "Unreal Angelscript",
     "description": "Language Server and Debug Adapter for use with the UnrealEngine-Angelscript plugin from https://github.com/Hazelight/UnrealEngine-Angelscript",
-    "version": "1.8.4",
+    "version": "1.8.5",
     "publisher": "Hazelight",
     "icon": "resources/angelscript_unreal.png",
     "engines": {
@@ -447,6 +447,11 @@
                                 "type": "string",
                                 "default": "",
                                 "description": "Isolate symbols in modules matching this, so they cannot be used outside that match"
+                            },
+                            "unisolate": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Modules matching this don't obey isolation restrictions"
                             }
                         }
                     }
