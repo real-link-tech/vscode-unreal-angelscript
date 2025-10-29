@@ -2094,7 +2094,7 @@ function CanCompleteSymbol(context : CompletionContext, symbol : typedb.DBSymbol
     {
         return CanCompleteToOnlyStart(context, symbol.name);
     }
-    else if (!symbol.containingType && symbol.namespace.isRootNamespace())
+    else if (!symbol.containingType && symbol.namespace.isRootNamespace() && !context.priorType)
     {
         if (symbol.keywords)
             return CanCompleteToOnlyStart(context, GetSymbolFilterText(context, symbol));
@@ -2534,7 +2534,7 @@ function GenerateCompletionContext(asmodule : scriptfiles.ASModule, offset : num
                 // Comparison operators that expect the same type
                 context.expectedType = context.leftType;
             }
-            else if (context.leftType.isPrimitive)
+            else if (context.leftType.isPrimitive || context.leftType.isEnum)
             {
                 // Any non boolean operator on a primitive expects that same type
                 context.expectedType = context.leftType;
@@ -3780,7 +3780,7 @@ function isPropertyAccessibleFromScope(curtype : typedb.DBType | typedb.DBNamesp
 
 function isFunctionAccessibleFromScope(curtype : typedb.DBType | typedb.DBNamespace, func : typedb.DBMethod, inScope : scriptfiles.ASScope) : boolean
 {
-    if (!func.containingType)
+    if (!func.containingType && !func.isConstructor)
     {
         if (func.declaredModule)
         {
