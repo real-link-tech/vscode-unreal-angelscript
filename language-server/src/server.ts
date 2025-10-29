@@ -657,7 +657,7 @@ connection.onSignatureHelp((_textDocumentPosition: TextDocumentPositionParams): 
     return help;
 });
 
-connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Definition | Thenable<Definition> => {
+connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Definition | null | Thenable<Definition | null> => {
     let asmodule = GetAndParseModule(_textDocumentPosition.textDocument.uri);
     if (!asmodule)
         return null;
@@ -685,11 +685,11 @@ connection.onDefinition((_textDocumentPosition: TextDocumentPositionParams): Def
                                     return
                                 }
                             }
-                            reject("Couldn't find definition");
+                            resolve(null);
                         }
                     );
                     setTimeout(() => {
-                        resolve(definitions);
+                        resolve(null);
                     }, 5000);
                 }
             );
