@@ -19,7 +19,7 @@ let CommonNamespaces = new Set<string>([
     "Math",
 ]);
 let CommonTemplateTypes = new Set<string>(
-    ['TArray', 'TMap', 'TSet', 'TSubclassOf', 'TSoftObjectPtr', 'TSoftClassPtr', 'TInstigated', 'TPerPlayer', 'TOptional'],
+    ['TArray', 'TMap', 'TSet', 'TSubclassOf', 'TSoftObjectPtr', 'TSoftClassPtr', 'TInstigated', 'TPerPlayer', 'TOptional', 'TPromise'],
 );
 
 export interface CompletionSettings
@@ -1252,6 +1252,13 @@ function AddCompletionsFromKeywords(context : CompletionContext, completions : A
                     label: "return",
                     kind: CompletionItemKind.Keyword,
                     commitCharacters: [" ", ";"],
+                    sortText: Sort.Keyword,
+            });
+
+            completions.push({
+                    label: "co_spawn",
+                    kind: CompletionItemKind.Keyword,
+                    commitCharacters: [" "],
                     sortText: Sort.Keyword,
             });
         }

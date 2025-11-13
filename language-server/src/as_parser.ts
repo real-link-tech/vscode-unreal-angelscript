@@ -50,7 +50,7 @@ export let ASKeywords = [
     "for", "if", "enum", "return", "continue", "break", "import", "class", "struct", "default",
     "void", "const", "delegate", "event", "else", "while", "case", "Cast", "namespace",
     "UFUNCTION", "UPROPERTY", "UCLASS", "USTRUCT", "nullptr", "true", "false", "this", "auto",
-    "final", "property", "override", "mixin", "switch", "fallthrough", "co_async",
+    "final", "property", "override", "mixin", "switch", "fallthrough", "co_async", "co_spawn",
 ];
 
 export enum ASScopeType
@@ -3063,6 +3063,14 @@ export function ResolveTypeFromExpression(scope : ASScope, node : any) : typedb.
                 let argumentType = ResolveTypeFromExpression(scope, argumentExpr);
                 if (argumentType)
                     return left_func.applyDeterminesOutputType(left_func.returnType, argumentType);
+            }
+
+            if (left_func.isAsync && node.qualifiers == 'co_spawn')
+            {
+                if (left_func.returnType == 'void')
+                    return typedb.LookupType(left_func.namespace, 'FPromise');
+                else
+                    return typedb.LookupType(left_func.namespace, `TPromise<${left_func.returnType}>`);
             }
 
             return typedb.LookupType(left_func.namespace, left_func.returnType);
