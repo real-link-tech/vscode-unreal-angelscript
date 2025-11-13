@@ -590,7 +590,8 @@ namespaced_identifier_no_trailing
     }
 
 call_expression
-    = head:primary_expression
+    = pre_quals:(@("co_spawn") _)*
+      head:primary_expression
       tail:(
         @(
             "(" _ args:argument_list? ")" { return [0, args, range()]; }
@@ -609,6 +610,7 @@ call_expression
                 );
                 if (element[2].end > expr.end)
                     expr.end = element[2].end;
+                expr.qualifiers = pre_quals;
                 return expr;
             }
             else if (element[0] == 1)
